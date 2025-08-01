@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Warren</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        html,body{height:100%;overflow:hidden;background:#000;cursor:none}
+        canvas{position:fixed;top:0;left:0;width:100%;height:100%}
+        .center{
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 2rem;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            z-index: 10;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+<canvas id="sky"></canvas>
+<div class="center">Hello World</div>
+    
+<script>
+const cvs = document.getElementById('sky');
+const ctx = cvs.getContext('2d');
+let W, H;
+function resize(){ W=cvs.width=innerWidth; H=cvs.height=innerHeight; }
+resize(); window.addEventListener('resize',resize);
+const stars = [];
+const starCount = 600;
+class Star {
+  constructor(){
+    this.reset();
+    this.z = Math.random()*W;
+  }
+  reset(){
+    this.x = (Math.random()-.5)*W*3;
+    this.y = (Math.random()-.5)*H*3;
+    this.z = W;
+    this.size = Math.random()*1.5+.5;
+    this.alpha = 0;
+    this.twinkleSpeed = Math.random()*0.02+.005;
+  }
+  update(){
+    this.z -= 0.5;
+    if(this.z<=0) this.reset();
+    const sx = (this.x/this.z)*100 + W/2;
+    const sy = (this.y/this.z)*100 + H/2;
+    const r = (1-this.z/W)*this.size;
+    this.alpha = Math.sin(Date.now()*this.twinkleSpeed)*.3+.7;
+    return {sx,sy,r};
+  }
+  draw(){
+    const {sx,sy,r} = this.update();
+    ctx.beginPath();
+    ctx.arc(sx,sy,r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,255,255,${this.alpha})`;
+    ctx.fill();
+  }
+}
+for(let i=0;i<starCount;i++) stars.push(new Star());
+function animate(){
+  ctx.clearRect(0,0,W,H);
+  stars.forEach(s=>s.draw());
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
+</body>
+</html>
